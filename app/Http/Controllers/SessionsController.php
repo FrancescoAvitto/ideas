@@ -16,10 +16,10 @@ class SessionsController extends Controller
     {
         $attributes = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required','string','min:8','max:255'],
+            'password' => ['required', 'string', 'min:8', 'max:255'],
         ]);
 
-        if(!Auth::attempt($attributes)){
+        if (! Auth::attempt($attributes)) {
             return back()->withInput()->withErrors([
                 'password' => 'The provided credentials do not match our records.',
             ]);

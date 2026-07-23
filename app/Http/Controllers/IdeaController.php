@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateIdea;
 use App\Http\Requests\StoreIdeaRequest;
 use App\Http\Requests\UpdateIdeaRequest;
 use App\IdeaStatus;
@@ -16,18 +17,18 @@ class IdeaController extends Controller
      */
     public function index(Request $request)
     {
-        $user= Auth::user();
+        $user = Auth::user();
 
         $ideas = $user
-        ->ideas()
-        ->when(in_array($request->status, IdeaStatus::values()), fn($query) => $query->where('status', $request->status))
-        ->latest()
-        ->get();
+            ->ideas()
+            ->when(in_array($request->status, IdeaStatus::values()), fn ($query) => $query->where('status', $request->status))
+            ->latest()
+            ->get();
 
         return view('idea.index', [
             'ideas' => $ideas,
-            'statusCounts' =>Idea::statusCounts($user),
-            ]);
+            'statusCounts' => Idea::statusCounts($user),
+        ]);
     }
 
     /**
@@ -41,21 +42,12 @@ class IdeaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreIdeaRequest $request)
+    public function store(StoreIdeaRequest $request, CreateIdea $action)
     {
-        $idea = Auth::user()->ideas()->create($request->safe()->except(['steps','image']));
-        $idea->steps()->createMany(
-            collect($request->steps)->map(fn($step) => ['description'=>$step])
-        );
-
-        $imagePath = $request->image->store('ideas','public');
-
-        $idea->update([
-            'image_path' => $imagePath
-        ]);
+        $action->handle($request->safe()->all());
 
         return to_route('idea.index')->with('success', 'Idea created!');
-        
+
     }
 
     /**
@@ -63,7 +55,7 @@ class IdeaController extends Controller
      */
     public function show(Idea $idea)
     {
-        return view('idea.show', ['idea' =>$idea]);
+        return view('idea.show', ['idea' => $idea]);
     }
 
     /**
@@ -89,6 +81,7 @@ class IdeaController extends Controller
     {
         // authorize that this is allowed
         $idea->delete();
+
         return to_route('idea.index');
     }
 }
