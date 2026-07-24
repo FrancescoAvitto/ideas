@@ -14,13 +14,19 @@ it('Creates a new idea', function (): void {
         ->click('@submit-new-link-button')
         ->fill('@new-link', 'https://laravel.com')
         ->click('@submit-new-link-button')
+        ->fill('@new-step', 'Do a thing')
+        ->click('@submit-new-step-button')
+        ->fill('@new-step', 'Do another thing')
+        ->click('@submit-new-step-button')
         ->click('@create-idea')
         ->assertPathIs('/ideas');
 
-    expect($user->ideas())->toMatchArray([
+    expect($idea = $user->ideas())->toMatchArray([
         'title' => 'Some example title',
         'status' => 'completed',
         'description' => 'An example description',
         'links' => ['https://laracasts.com', 'https://laravel.com'],
     ]);
+
+    expect($idea->steps)->toHaveCount(2);
 });

@@ -62,4 +62,9 @@ class IdeaPolicy
     {
         return false;
     }
+
+    public function workWith(User $user, Idea $idea): bool
+    {
+        return $idea->user->is($user);
+    }
 }
