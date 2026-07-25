@@ -1,0 +1,71 @@
+<?php
+
+use App\Models\Idea;
+use App\Models\User;
+
+it('Creates a new idea', function (): void {
+    $this->actingAs($user = User::factory()->create());
+
+    visit('/ideas')
+        ->click('@create-idea-button')
+        ->fill('title', 'Some example title')
+        ->click('@button-status-completed')
+        ->fill('description', 'An example description')
+        ->fill('@new-link', 'https://laracasts.com')
+        ->click('@submit-new-link-button')
+        ->fill('@new-link', 'https://laravel.com')
+        ->click('@submit-new-link-button')
+        ->fill('@new-step', 'Do a thing')
+        ->click('@submit-new-step-button')
+        ->fill('@new-step', 'Do another thing')
+        ->click('@submit-new-step-button')
+        ->click('@create-idea')
+        ->assertPathIs('/ideas');
+
+    expect($idea = $user->ideas())->toMatchArray([
+        'title' => 'Some example title',
+        'status' => 'completed',
+        'description' => 'An example description',
+        'links' => ['https://laracasts.com', 'https://laravel.com'],
+    ]);
+
+    expect($idea->steps)->toHaveCount(2);
+
+
+
+});
+
+
+it('Edits an existing idea', function (): void {
+    $this->actingAs($user = User::factory()->create());
+
+    $idea = Idea::factory()->for($user)->create();
+
+    visit(route('idea.show', $idea))
+        ->click('@edit-idea-button')
+        ->fill('title', 'Some example title')
+        ->click('@button-status-completed')
+        ->fill('description', 'An example description')
+        ->fill('@new-link', 'https://laracasts.com')
+        ->click('@submit-new-link-button')
+        ->fill('@new-link', 'https://laravel.com')
+        ->click('@submit-new-link-button')
+        ->fill('@new-step', 'Do a thing')
+        ->click('@submit-new-step-button')
+        ->fill('@new-step', 'Do another thing')
+        ->click('@submit-new-step-button')
+        ->click('@create-idea')
+        ->assertPathIs('/ideas');
+
+    expect($idea = $user->ideas())->toMatchArray([
+        'title' => 'Some example title',
+        'status' => 'completed',
+        'description' => 'An example description',
+        'links' => ['https://laracasts.com', 'https://laravel.com'],
+    ]);
+
+    expect($idea->steps)->toHaveCount(2);
+
+
+    
+});

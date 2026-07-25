@@ -1,78 +1,31 @@
-<x-layout>
-    <div>
-        <header class="py-8 md:py-12">
-            <h1 class="text-3xl font-bold">Ideas</h1>
-            <p class="text-muted-foreground text-sm mt-2">Capture your thoughts. Make a plan.</p>
+     @props(['idea' => new \App\Models\Idea()])
 
-            <x-card
-            x-data
-            @click="$dispatch('open-modal', 'create-idea')"
-             is="button"
-             type="button"
-             data-test="create-idea-button"
-             class="mt-10 cursor-pointer h-32 w-full text-left"
-             >
-                <p>What's the idea?</p>
-            </x-card>
-        </header>
-
-        <div>
-            <a href="/ideas" class="btn {{ request()->has('status') ? 'btn-outlined' : '' }}">All <span class="text-xs pl-3">{{ $statusCounts->get('all') }}</span></a>
-            @foreach(App\IdeaStatus::cases() as $status)
-                <a href="/ideas?status={{ $status->value }}" class="btn {{ request('status')=== $status->value ? '':'btn-outlined' }} ">
-                    {{ $status->label() }}
-                <span class="text-xs pl-3">{{ $statusCounts->get($status->value) }}</span>
-                </a>
-            @endforeach
-
-        </div>
-
-        <div class="mt-10 text-muted-foreground">
-            <div class="grid md:grid-cols-2 gap-6">
-                @forelse($ideas as $idea)
-                    <x-card href="{{ route('idea.show', $idea) }}">
-                        @if($idea->image_path)
-                            <div class="mb-4 -mx-4 -mt-4 rounded-t-lg overflow-hidden">
-                                <img src="{{ asset('storage/'.$idea->image_path) }}" alt="{{ $idea->title }}" class="w-full h-48 object-cover" />
-                            </div>
-                        @endif
-                        <h3 class="text-foreground text-lg">{{ $idea->title }}</h3>
-                        <div class="mt-1">
-                            <x-idea.status-label status="{{ $idea->status }}">
-                                 {{ $idea->status->label() }}
-                            </x-idea.status-label>
-                        </div>
-                        <div class="mt-5 line-clamp-3 ">{{ $idea->description }}</div>
-                        <div class="mt-4">{{ $idea->created_at->diffForHumans() }}</div>
-                     
-                    </x-card>
-                @empty
-                <x-card>
-                    <p>No ideas yet. Start by creating one!</p>
-                </x-card>
-   
-        
-                @endforelse
-
-            </div>          
-
-        </div>
-
-        <!-- modal -->
-        {{-- <x-modal name="create-idea" title="New Idea">
+     <x-modal name="{{ $idea->exists ? 'edit-idea' : 'create-idea' }}" title="{{ $idea->exists ? 'Edit Idea' : 'New Idea' }}">
             <form 
-                x-data="{status:'pending', newLink:'', links:[], newStep:'', steps:[]}" 
+                x-data="{
+                status:@js(old('status', $idea->status->value)), 
+                newLink:'',
+                links:@js(old('links', $idea->links ?? [])), 
+                newStep:'', 
+                steps:@js(old('steps', $idea->steps->map(fn($step)=>$step->description)))}" 
                 method="POST" 
-                action="{{ route('idea.store') }}"
+                action="{{ $idea->exists ? route('idea.update', $idea) : route('idea.store') }}"
                 enctype="multipart/form-data">
                 @csrf
+
+                @if($idea->exists)
+                    @method('PATCH')
+                @endif
+
                 <div class="space-y-6">
                     <x-form.field 
                         label="Title" 
                         name="title" 
                         placeholder="Enter an idea for your title" 
                         autofocus
-                        required />
+                        required
+                        :value="$idea->title" 
+                        />
 
                     <div class="space-y-2">
                         <label for="status" class="label">Status</label>
@@ -99,10 +52,22 @@
                         name="description" 
                         type="textarea" 
                         placeholder="Describe your idea..." 
-                        autofocus />
+                        autofocus 
+                        :value="$idea->description " 
+                        
+                        />
 
                         <div class="space-y-2">
                             <label for="image" class="label">Featured image</label>
+
+                            @if($idea->image_path)
+                                <div class="space-y-2">
+                                    <img src="{{ asset('storage/'.$idea->image_path) }}" alt="{{ $idea->title }}" class="w-full h-48 object-cover rounded-lg" />
+                                    <button class="btn btn-outlined h-10 w-full" form="delete-image-form">Remove Image</button>
+                                </div>
+
+                            @endif
+
                             <input type="file" name="image" accept="image/*" />
                             <x-form.error name="image" />  
 
@@ -196,7 +161,7 @@
 
                     <div class="flex justify-end gap-x-5">
                         <button type="button" @click="$dispatch('close-modal')">Cancel</button>
-                        <button type="submit" data-test="create-idea" class="btn">Create</button>
+                        <button type="submit" data-test="create-idea" class="btn">{{ $idea->exists ? 'Update' : 'Create' }}</button>
         
         
                     </div>
@@ -205,9 +170,13 @@
 
 
             </form>
-        </x-modal> --}}
 
-        <x-idea.modal />
+            @if($idea->image_path)
+                <form method="POST" action="{{ route('idea.image.destroy', $idea) }}" id="delete-image-form">
+                    @csrf
+                    @method('DELETE')
 
+                </form>
+            @endif
 
-</x-layout>
+        </x-modal>
