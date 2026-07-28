@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CreateIdea;
+use App\Actions\UpdateIdea;
 use App\Http\Requests\IdeaRequest;
 use App\Http\Requests\UpdateIdeaRequest;
 use App\IdeaStatus;
@@ -64,7 +65,7 @@ class IdeaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Idea $idea)
+    public function edit(Idea $idea) : void
     {
         Gate::authorize('workWith', $idea);
         
@@ -73,10 +74,17 @@ class IdeaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(IdeaRequest $request, Idea $idea)
+    public function update(IdeaRequest $request, Idea $idea, UpdateIdea $action)
     {
-        dd($request->all());
         Gate::authorize('workWith', $idea);
+
+        $action->handle($request->safe()->all(), $idea);
+
+        return back()->with('success', 'Idea updated!');
+
+        // update the idea
+        // upload an image if relevant
+        // sync the steps
 
 
         

@@ -2,21 +2,18 @@
 
 namespace App\Actions;
 
+use App\Models\Idea;
 use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Container\Attributes\CurrentUser;
 
 
-class CreateIdea
+class UpdateIdea
 {
-    public function __construct(#[CurrentUser] protected User $user)
-    {
-        
-    }
 
 
-    public function handle(array $attributes)
+    public function handle(array $attributes, Idea $idea)
     {
 
         $data = collect($attributes)->only([
@@ -28,10 +25,10 @@ class CreateIdea
 
         }
 
-        DB::transaction(function () use ($data, $attributes): void {
-            $idea = $this->user->ideas()->create($data);
+        DB::transaction(function () use ($idea, $data, $attributes): void {
+            $idea->update($data);
 
-            // $steps = collect($attributes['steps'] ?? [])->map(fn ($step) => ['description' => $step]);
+            $idea->steps()->delete();
 
             $idea->steps()->createMany($attributes['steps'] ?? []);
 
