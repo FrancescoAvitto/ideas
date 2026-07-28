@@ -26,5 +26,5 @@ it('requires a valid email address', function (): void {
         // ->debug();
         ->click('Create Account')
         ->assertRoute('idea.index');
-        
+
 });
