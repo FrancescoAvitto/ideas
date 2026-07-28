@@ -8,7 +8,7 @@ it('registeres a user', function (): void {
         ->fill('email', 'john@example.com')
         ->fill('password', 'password123!')
         ->click('Create Account')
-        ->assertPathIs('/ideas');
+        ->assertRoute('idea.index');
 
     $this->assertAuthenticated();
 
@@ -25,5 +25,6 @@ it('requires a valid email address', function (): void {
         ->fill('password', 'password123!')
         // ->debug();
         ->click('Create Account')
-        ->assertPathIs('/ideas');
+        ->assertRoute('idea.index');
+        
 });

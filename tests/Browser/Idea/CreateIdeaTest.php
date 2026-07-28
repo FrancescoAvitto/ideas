@@ -1,9 +1,8 @@
 <?php
 
-use App\Models\Idea;
 use App\Models\User;
 
-it('creates a new idea', function (){
+it('creates a new idea', function (): void {
 
     $this->actingAs($user = User::factory()->create());
 
@@ -23,7 +22,7 @@ it('creates a new idea', function (){
         ->click('@create-idea')
         ->assertPathIs('/ideas');
 
-        expect($idea = $user->ideas()->first())->toMatchArray([
+    expect($idea = $user->ideas()->first())->toMatchArray([
         'title' => 'Some example title',
         'status' => 'completed',
         'description' => 'An example description',
@@ -31,7 +30,5 @@ it('creates a new idea', function (){
     ]);
 
     expect($idea->steps)->toHaveCount(2);
-
-
 
 });

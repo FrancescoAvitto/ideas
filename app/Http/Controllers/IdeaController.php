@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Actions\CreateIdea;
 use App\Actions\UpdateIdea;
 use App\Http\Requests\IdeaRequest;
-use App\Http\Requests\UpdateIdeaRequest;
 use App\IdeaStatus;
 use App\Models\Idea;
 use Illuminate\Http\Request;
@@ -65,10 +64,10 @@ class IdeaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Idea $idea) : void
+    public function edit(Idea $idea): void
     {
         Gate::authorize('workWith', $idea);
-        
+
     }
 
     /**
@@ -86,8 +85,6 @@ class IdeaController extends Controller
         // upload an image if relevant
         // sync the steps
 
-
-        
     }
 
     /**

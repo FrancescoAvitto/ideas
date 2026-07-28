@@ -3,14 +3,14 @@
 use App\Models\Idea;
 use App\Models\User;
 
-it('requires authentication', function (){
+it('requires authentication', function (): void {
     $idea = Idea::factory()->create();
 
     $this->get(route('idea.show', $idea))->assertRedirectToRoute('login');
 
 });
 
-it('disallows accessing an idea you did not create', function (){
+it('disallows accessing an idea you did not create', function (): void {
     $user = User::factory()->create();
     $this->actingAs($user);
 
@@ -19,6 +19,3 @@ it('disallows accessing an idea you did not create', function (){
     $this->get(route('idea.show', $idea))->assertForbidden();
 
 });
-
-
-

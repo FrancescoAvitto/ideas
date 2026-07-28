@@ -11,38 +11,38 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    public function edit(){
-        return view('profile.edit', ['user'=>Auth::user()]);
+    public function edit()
+    {
+        return view('profile.edit', ['user' => Auth::user()]);
     }
 
-     public function update(Request $request){
+    public function update(Request $request)
+    {
 
-     $user=Auth::user();
+        $user = Auth::user();
 
-     $request->validate([
-        'name'=>['required','string','max:255'],
-        'email'=>['required','string','email','max:255', Rule::unique('users','email')->ignore($user->id),],
-        'password'=>['nullable', Password::defaults()],
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', Password::defaults()],
 
-     ]);
+        ]);
 
-     $originalEmail=$user->email;
+        $originalEmail = $user->email;
 
-    $user->update([
-        'name'=>$request->name,
-        'email'=>$request->email,
-        'password'=>$request->password ?? $user->password,
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password ?? $user->password,
 
-    ]);
+        ]);
 
-    // if the email was changed, send an email changed notification
-    if($originalEmail !== $request->email){
-       Notification::route('mail',$originalEmail)->notify(new EmailChanged($user, $originalEmail));
-    }
+        // if the email was changed, send an email changed notification
+        if ($originalEmail !== $request->email) {
+            Notification::route('mail', $originalEmail)->notify(new EmailChanged($user, $originalEmail));
+        }
 
+        return redirect()->route('profile.edit')->with('success', 'Profile Updated!');
 
-
-    return redirect()->route('profile.edit')->with('success','Profile Updated!');
-        
     }
 }

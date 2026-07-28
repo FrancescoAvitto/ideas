@@ -3,7 +3,7 @@
 use App\Models\Idea;
 use App\Models\User;
 
-it('shows the initial state', function(){
+it('shows the initial state', function (): void {
     $this->actingAs($user = User::factory()->create());
 
     $idea = Idea::factory()->for($user)->create();
@@ -14,10 +14,9 @@ it('shows the initial state', function(){
         ->assertValue('description', $idea->description)
         ->assertValue('status', $idea->status->value);
 
-    
 });
 
-it('edits an existing idea', function (){
+it('edits an existing idea', function (): void {
     $this->actingAs($user = User::factory()->create());
 
     $idea = Idea::factory()->for($user)->create();
@@ -33,7 +32,7 @@ it('edits an existing idea', function (){
         ->click('@submit-new-step-button')
         ->click('Update')
         ->assertRoute('idea.show', [$idea]);
-      
+
     expect($idea = $user->ideas()->first())->toMatchArray([
         'title' => 'Some example title',
         'status' => 'completed',
@@ -43,6 +42,4 @@ it('edits an existing idea', function (){
 
     expect($idea->steps)->toHaveCount(1);
 
-
-    
 });
